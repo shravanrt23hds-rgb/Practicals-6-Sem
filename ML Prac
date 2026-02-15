@@ -1,0 +1,504 @@
+Practical NO.1
+
+from sklearn.datasets import load_digits
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+digits = load_digits()
+X = digits.data
+y = digits.target
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=0
+)
+
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_train, y_train)
+
+y_pred = knn.predict(X_test)
+
+y_pred
+
+from sklearn.metrics import accuracy_score
+acc = accuracy_score(y_test, y_pred)
+print("Accuracy:", acc)
+
+print("Actual value:", y_test[0])
+print("Predicted value:", knn.predict([X_test[0]])[0])
+
+----------------------------------------------------------------------------------------------
+Practical No.2
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import classification_report
+from sklearn.preprocessing import LabelEncoder
+
+df = pd.read_csv("/content/Churn_Modelling - Churn_Modelling.csv")
+
+df.shape
+
+df.head()
+
+df.info()
+
+df.isnull().sum()
+
+df.duplicated().sum()
+
+df = df.drop_duplicates()
+df.duplicated().sum()
+
+le = LabelEncoder()
+df['Geography'] = le.fit_transform(df['Geography'])
+df['Gender'] = le.fit_transform(df['Gender'])
+df.head()
+
+df = df.drop('Surname', axis=1)
+
+X = df.drop('Exited', axis=1)
+y = df['Exited']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=1
+)
+dt = DecisionTreeClassifier(criterion='entropy', random_state=1)
+dt.fit(X_train, y_train)
+
+y_pred = dt.predict(X_test)
+y_pred
+
+print(classification_report(y_test, y_pred))
+
+--------------------------------------------------------------------------------------------
+
+Practical NO.3
+
+
+import numpy as np
+from sklearn.preprocessing import LabelEncoder
+import pandas as pd
+import nltk
+import string
+from sklearn import svm
+
+df = pd.read_csv('spam.csv')
+df.head()
+
+encoder = LabelEncoder()
+df['Label'] = encoder.fit_transform(df['Label'])
+
+df
+
+df = df.drop_duplicates()
+df.shape
+
+from nltk.stem.porter import PorterStemmer
+ps = PorterStemmer()
+
+def get_importantFeatures(sent):
+    sent = sent.lower()    
+    returnList = []
+    sent = nltk.word_tokenize(sent)
+    for i in sent:
+        if i.isalnum():
+            returnList.append(i)
+    return returnList
+def removing_stopwords(sent):
+    returnList = []
+    for i in sent:
+        if i not in nltk.corpus.stopwords.words('english') and i not in string.punctuation:
+            returnList.append(i)
+    return returnList
+def porter_stem(sent):
+    returnList = []
+    for i in sent:
+        returnList.append(ps.stem(i))
+    return " ".join(returnList)
+
+df['imp_feature'] = df['EmailText'].apply(get_importantFeatures)
+df['imp_feature'] = df['imp_feature'].apply(removing_stopwords)
+df['imp_feature'] = df['imp_feature'].apply(porter_stem)
+
+df
+
+from sklearn.model_selection import train_test_split
+X = df['imp_feature']
+y = df['Label']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+tfidf = TfidfVectorizer()
+feature = tfidf.fit_transform(X_train)
+model = svm.SVC()
+model.fit(feature, y_train)
+
+y_predict = tfidf.transform(X_test)
+print("Accuracy:", model.score(y_predict, y_test))
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Practical NO. 4
+
+import pandas as pd
+import numpy as np
+import regex
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import classification_report
+
+nltk.download("stopwords")
+nltk.download("punkt")
+
+data = pd.read_csv("IMDB Dataset.csv")
+data.head()
+
+data.isnull().sum()
+
+data.shape
+
+def cleanText(text):
+    text = regex.sub(r"<[^>]+>", "", text)
+    text = regex.sub(r"[^a-zA-Z0-9\s]", "", text)
+    text = text.lower()
+    return text
+
+data["review"] = data["review"].apply(cleanText)
+data.head()
+
+stopword_list = stopwords.words('english')
+
+def remove_stopwords(text):
+    tokens = [token.strip() for token in word_tokenize(text)]
+    filtered_tokens = [token for token in tokens if token.lower() not in stopword_list]
+    filtered_text = " ".join(filtered_tokens)
+    return filtered_text
+
+data['review'] = data['review'].apply(remove_stopwords)
+data.head()
+
+def simple_stemmer(text):
+    ps = PorterStemmer()
+    text = ' '.join([ps.stem(word) for word in text.split()])
+    return text
+
+data['review'] = data['review'].apply(simple_stemmer)
+data.head(10)
+
+X = data['review']
+y = data['sentiment']
+
+vect = CountVectorizer(ngram_range=(1, 3))
+X = vect.fit_transform(X)
+X
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+clf = MultinomialNB()
+
+clf.fit(X_train, y_train)
+
+y_pred = clf.predict(X_test)
+print(y_pred)
+
+print(classification_report(y_test, y_pred))
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Practical No. 5
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LinearRegression
+
+df = pd.read_csv("Housing.csv")
+
+df.head()
+
+df.shape
+
+df.info()
+
+df.isna().sum()
+
+sns.pairplot(df)
+
+plt.figure(figsize=(10,10))
+plt.subplot(3,2,1)
+sns.barplot(x='mainroad', y='price', data=df)
+plt.subplot(3,2,2)
+sns.barplot(x='guestroom', y='price', data=df)
+plt.subplot(3,2,3)
+sns.barplot(x='basement', y='price', data=df)
+plt.subplot(3,2,4)
+sns.barplot(x='hotwaterheating', y='price', data=df)
+plt.subplot(3,2,5)
+sns.barplot(x='airconditioning', y='price', data=df)
+plt.subplot(3,2,6)
+sns.barplot(x='furnishingstatus', y='price', data=df)
+plt.show()
+
+sns.barplot(x='furnishingstatus', y='price', hue='airconditioning', data=df)
+
+# Label Encoding
+le = LabelEncoder()
+df['mainroad'] = le.fit_transform(df['mainroad'])
+df['guestroom'] = le.fit_transform(df['guestroom'])
+df['basement'] = le.fit_transform(df['basement'])
+df['hotwaterheating'] = le.fit_transform(df['hotwaterheating'])
+df['airconditioning'] = le.fit_transform(df['airconditioning'])
+df['prefarea'] = le.fit_transform(df['prefarea'])
+df['furnishingstatus'] = le.fit_transform(df['furnishingstatus'])
+df.head()
+
+X = df.drop('price', axis=1)
+y = df['price']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+lm = LinearRegression()
+lm.fit(X_train, y_train)
+
+y_pred = lm.predict(X_test)
+y_pred
+
+from sklearn.metrics import r2_score
+r2_score(y_test, y_pred)
+
+sns.scatterplot(x=y_test, y=y_pred)
+plt.xlabel('y_test')
+plt.ylabel('y_pred')
+plt.title('y_test vs y_pred')
+
+-----------------------------------------------------------------------------------------------------------------------------------
+Practical No.6
+
+import numpy as np
+import pandas as pd
+import seaborn as plt
+import seaborn as sns
+
+df = pd.read_csv('creditcard.csv')
+df.head()
+
+df.shape
+
+df.info()
+
+df.isna().sum()
+
+df.describe().round(2)
+
+sns.barplot(x='Class', y=df['Class'].value_counts())
+
+df = df.drop('Time', axis=1)
+
+X = df.drop('Class', axis=1)
+y = df['Class']
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
+lr = LogisticRegression()
+lr.fit(X_train, y_train)
+
+y_pred = lr.predict(X_test)
+y_pred
+
+confusion_matrix(y_test, y_pred)
+
+print(classification_report(y_test, y_pred))
+
+----------------------------------------------------------------------------------------------------------------------
+
+Practical no.7
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.preprocessing import LabelEncoder
+import numpy as np
+import seaborn as sns
+
+df = pd.read_csv('heart.csv')
+df.head()
+
+df.shape
+
+df.info()
+
+df.isna().sum()
+
+df.describe()
+
+df.duplicated().sum()
+
+le = LabelEncoder()
+for column in df.select_dtypes(include=['object']):
+    df[column] = le.fit_transform(df[column])
+df.head()
+
+X = df.drop('HeartDisease', axis=1)
+y = df['HeartDisease']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
+
+lr = LogisticRegression()
+lr.fit(X_train, y_train)
+
+y_pred = lr.predict(X_test)
+y_pred
+
+confusion_matrix(y_test, y_pred)
+
+accuracy_score(y_test, y_pred)
+
+precision_score(y_test, y_pred)
+
+recall_score(y_test, y_pred)
+
+f1_score(y_test, y_pred)
+
+print(classification_report(y_pred)
+
+-------------------------------------------------------------------------------------------------------------------------
+
+Practical NO.8
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly as py
+import plotly.graph_objs as go
+from sklearn.preprocessing import LabelEncoder
+import scipy.cluster.hierarchy as sch
+from sklearn.cluster import AgglomerativeClustering
+
+df = pd.read_csv('Mall_Customers.csv')
+df.head()
+
+df.info()
+
+df.isna().sum()
+
+df.describe()
+
+df.duplicated().sum()
+
+plt.figure(figsize=(16,8))
+dendrogram = sch.dendrogram(sch.linkage(df.iloc[:,3:], method='ward'))
+plt.title('Dendrogram')
+plt.xlabel('Customers')
+plt.ylabel('Euclidean distances')
+plt.show()
+
+hc = AgglomerativeClustering(n_clusters=5, affinity='euclidean', linkage='ward')
+y_hc = hc.fit_predict(df.iloc[:,3:])
+y_hc
+
+df['cluster'] = pd.DataFrame(y_hc)
+
+X=df.iloc[:,[3,4]].values
+plt.scatter(df.iloc[y_hc==0,0], df.iloc[y_hc==0,1], s=100, c='red', label='Cluster 1')
+plt.scatter(df.iloc[y_hc==1,0], df.iloc[y_hc==1,1], s=100, c='blue', label='Cluster 2')
+plt.scatter(df.iloc[y_hc==2,0], df.iloc[y_hc==2,1], s=100, c='green', label='Cluster 3')
+plt.scatter(df.iloc[y_hc==3,0], df.iloc[y_hc==3,1], s=100, c='purple', label='Cluster 4')
+plt.scatter(df.iloc[y_hc==4,0], df.iloc[y_hc==4,1], s=100, c='orange', label='Cluster 5')
+plt.title('Cluster of Customers (Hierarchical Clustering Model)')
+plt.xlabel('Annual Income(k$)')
+plt.ylabel('Spending Score (1-100)')
+plt.legend()
+plt.show()
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Practical NO.9
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.cluster import KMeans
+import plotly as py
+
+!pip install plotly
+
+df = pd.read_csv('Mall_Customers.csv')
+
+df.head()
+
+df.shape
+
+df.info()
+
+df.describe()
+
+df.isna().sum()
+
+sns.pairplot(df, hue='Genre')
+
+X = df[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']]
+inertia = []
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters=i, init='k-means++', random_state=42)
+    kmeans.fit(X)
+    inertia.append(kmeans.inertia_)
+
+plt.figure(1, figsize=(15, 6))
+plt.plot(range(1, 11), inertia, 'o')
+plt.plot(range(1, 11), inertia, '-')
+plt.xlabel('Number of Clusters')
+plt.ylabel('Inertia')
+plt.show()
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Practical NO. 10 
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+df_pca = pd.DataFrame(X_pca, columns=['PC1', 'PC2'])
+df_pca['Target'] = y
+
+plt.scatter(df_pca['PC1'], df_pca['PC2'], c=y)
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.title('PCA - Dimensionality Reduction')
+plt.show()
+
+print("Explained Variance Ratio:")
+print(pca.explained_variance_ratio_)
+
+---------------------------------------------------------------------------------------------------------------------------------
