@@ -1,4 +1,5 @@
-Practical NO.1
+Practical NO.1                        Introduction to Python Libraries
+Aim:To study and use Python libraries such as NumPy and Pandas for numerical computation and data handling.
 
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
@@ -27,7 +28,8 @@ print("Actual value:", y_test[0])
 print("Predicted value:", knn.predict([X_test[0]])[0])
 
 ----------------------------------------------------------------------------------------------
-Practical No.2
+Practical No.2                   Data Loading & Inspection
+Aim:To load a dataset using Pandas and examine its structure, dimensions, and data types.
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -74,7 +76,8 @@ print(classification_report(y_test, y_pred))
 
 --------------------------------------------------------------------------------------------
 
-Practical NO.3
+Practical NO.3                   Data Cleaning & Missing Values
+Aim:To identify and handle missing values to ensure data quality and consistency.
 
 
 import numpy as np
@@ -141,7 +144,8 @@ print("Accuracy:", model.score(y_predict, y_test))
 
 ----------------------------------------------------------------------------------------------------------------------------
 
-Practical NO. 4
+Practical NO. 4                                Exploratory Data Analysis (EDA)
+Aim: To analyze and visualize relationships between variables using exploratory data analysis techniques.
 
 import pandas as pd
 import numpy as np
@@ -211,9 +215,10 @@ print(y_pred)
 
 print(classification_report(y_test, y_pred))
 
------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
 
-Practical No. 5
+Practical No. 5 Data Visualization
+Aim: To visualize data using bar plots and other charts to understand the impact of features on target variables.
 
 import numpy as np
 import pandas as pd
@@ -284,7 +289,11 @@ plt.ylabel('y_pred')
 plt.title('y_test vs y_pred')
 
 -----------------------------------------------------------------------------------------------------------------------------------
-Practical No.6
+
+Practical No.6 Feature Encoding
+Aim:To convert categorical data into numerical format using Label Encoding for machine learning models.
+
+
 
 import numpy as np
 import pandas as pd
@@ -326,7 +335,10 @@ print(classification_report(y_test, y_pred))
 
 ----------------------------------------------------------------------------------------------------------------------
 
-Practical no.7
+Practical no.7  Linear Regression Model
+Aim:To implement Linear Regression to predict housing prices based on input features.
+
+
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -379,7 +391,10 @@ print(classification_report(y_pred)
 
 -------------------------------------------------------------------------------------------------------------------------
 
-Practical NO.8
+Practical NO.8  Model Evaluation
+Aim:To evaluate the performance of a regression model using metrics such as R² score and visualization.
+
+
 
 import numpy as np
 import pandas as pd
@@ -429,7 +444,9 @@ plt.show()
 
 ----------------------------------------------------------------------------------------------------------------------------
 
-Practical NO.9
+Practical NO.9  Text Preprocessing & NLP
+Aim:To preprocess textual data using stemming and convert text into numerical vectors for machine learning.
+
 
 import numpy as np
 import pandas as pd
@@ -470,7 +487,9 @@ plt.show()
 
 -----------------------------------------------------------------------------------------------------------------------------
 
-Practical NO. 10 
+Practical NO. 10 Sentiment Analysis using Naive Bayes
+Aim:To build a sentiment analysis model using Multinomial Naive Bayes for classifying text reviews.
+
 
 import numpy as np
 import pandas as pd
