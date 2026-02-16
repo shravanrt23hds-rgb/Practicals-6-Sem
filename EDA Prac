@@ -1,0 +1,319 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL NO 1 : Managing Data Frames with the dplyr package
+
+
+install.packages("dplyr")
+library(dplyr)
+
+data <- data.frame(
+  name = c("Alice","Bob","Charlie","David","Emily"),
+  age = c(25, 30, 22, 28, 27),
+  city = c("New York","Los Angeles", "Chicago", "London", "Paris")
+)
+#See data
+View(data)   
+
+#Select rows where age is greater than 25
+filtered_data <- filter(data, age > 25)
+
+#Select only name and column
+selected_data <- select(data, name, age)
+
+#Sort by age in descending order
+arranged_data <- arrange(data, desc(age))
+
+#create a new column 'is_adult' based on age 
+mutated_data <- mutate(data, is_adult = age >= 18)
+
+#Calculate average age
+summary_data <- summarize(data, mean_age = mean(age))
+
+#Group by city and calculate average age for each city
+grouped_data <- group_by(data, city)
+summarized_grouped_data <- summarize(grouped_data, mean_age = mean(age))
+result <- data %>%
+  filter(age>=25 & city == "New York") %>%
+  select(name)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL NO 2 :  Use dplyr Grammar for inbuilt data set car.
+
+library(dplyr)
+# 1. Select specific columns 
+mtcars %>%
+  select(mpg, cyl, disp)
+# 2. Filter rows based on conditions
+mtcars %>%
+  filter(cyl == 4)
+mtcars %>%
+  arrange(desc(mpg))
+# 3. Create a new column
+mtcars %>%
+  mutate(mpg_per_cyl = mpg / cyl
+         )
+# 4. Create a new column
+mtcars %>%
+  group_by(cyl) %>%
+  summarize(mean_mpg = mean(mpg))
+mtcars %>%
+  filter(cyl == 4) %>%
+  select(mpg, hp) %>%
+  arrange(desc(hp))
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL NO 3 : Use group by(), %>%,mutate(), rename(),arrange(), filter(), select()
+
+
+library(dplyr)
+
+# 1. Use the mtcars dataset and group the data by number of cylinders (cyl)
+mtcars %>%
+  group_by(cyl) %>%
+  
+  # 2. Calculate the average miles per gallon (mpg) for each cylinder group
+  mutate(avg_mpg_per_cyl = mean(mpg)) %>%
+  
+  # 3. Rename the column 'cyl' to 'num_cylinder' for better readability
+  rename(num_cylinder = cyl) %>%
+  
+  # 4. Arrange rows in descending order of average mpg
+  arrange(desc(avg_mpg_per_cyl)) %>%
+  
+  # 5. Filter only those cylinder groups where average mpg is greater than 20
+  filter(avg_mpg_per_cyl > 20) %>%
+  
+  # 6. Select only the relevant columns to display
+  select(num_cylinder, avg_mpg_per_cyl)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL NO 4 : Use the data set air quality from inbuilt data sets library.
+a) Use summary statistics and find the important key values from the output
+b) Use boxplot and find the interquartile range. Interpret the boxplot and inner and outer
+fencing of outliers
+c) Check the missing value in the data set and fine the suitable solution for the missing
+values.
+d) Using histogram, find the distribution of data and give proper comment over the dataset.
+
+#Load necessary datasets
+library(datasets)
+
+#Access the airquality dataset
+data('airquality')
+
+# a) Summary Statistics
+summary(airquality)
+
+# b) Boxplot
+boxplot(airquality$Ozone,main="Boxplot of Ozone Levels")
+
+#Calculate Interquartile Range(IQR)
+Q3 <-quantile(airquality$Ozone,0.75,na.rm=TRUE)
+Q1 <-quantile(airquality$Ozone,0.25,na.rm=TRUE)
+IQR<-Q3-Q1
+
+#Inner and Outer Fences for Outlier Detection
+lower_inner_fence<-Q1-1.5*IQR
+upper_inner_fence<-Q3+1.5*IQR
+lower_inner_fence<-Q1-3*IQR
+upper_inner_fence<-Q3+3*IQR
+
+# c) Check for missing values
+sum(is.na(airquality))
+
+#Check missing values in each column
+colSums(is.na(airquality))
+
+#Handle Missing Values (Example:Imputation with Mean)
+#Impute missing values in 'Ozone'column with the mean
+airquality$Ozone[is.na(airquality$Ozone)]<-mean(airquality$Ozone,na.rm=TRUE)
+
+# d) Histogram
+hist(airquality$Ozone,main="Histogram of Ozone Levels",xlab="Ozone",col="lightblue")
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL NO 5 : Use bar plot and identify the difference between bar plot and histograms. Conclude the
+appropriate use of bar plot and histogram.
+
+# Load necessary library
+library(ggplot2)
+
+# Sample categorical data (replace with your actual data)
+data <- data.frame(
+  Category = c("A", "B", "C", "D"),
+  Count = c(20, 15, 30, 10)
+)
+
+# Create bar plot
+ggplot(data, aes(x = Category, y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Bar Plot of Categorical Data",
+       x = "Category",
+       y = "Count")
+
+# Sample continuous data (replace with your actual data)
+data_continuous <- data.frame(
+  Values = rnorm(100, mean = 50, sd = 10)
+)
+
+# Create histogram
+ggplot(data_continuous, aes(x = Values)) +
+  geom_histogram(binwidth = 5, fill = "lightgreen", color = "black") +
+  labs(title = "Histogram of Continuous Data",
+       x = "Values",
+       y = "Frequency")
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL NO 6 : Explore the two dimensional data
+
+# Load necessary libraries
+library(ggplot2)
+library(MASS)
+
+# Sample two-dimensional data (replace with your actual data)
+data <- data.frame(
+  x = c(1, 2, 3, 4, 5),
+  y = c(2, 4, 3, 6, 1)
+)
+
+# 1. Scatter Plot
+ggplot(data, aes(x = x, y = y)) +
+  geom_point() +
+  labs(title = "Scatter Plot of Two-Dimensional Data",
+       x = "Variable X",
+       y = "Variable Y")
+
+# 2. Line Plot (if you have a time series or ordered data)
+ggplot(data, aes(x = x, y = y)) +
+  geom_line() +
+  labs(title = "Line Plot of Two-Dimensional Data",
+       x = "Variable X",
+       y = "Variable Y")
+
+# 3. Heatmap (for visualizing density)
+# Create a 2D density estimate
+density_data <- MASS::kde2d(data$x, data$y)
+
+# Convert kde2d output into a full grid (REQUIRED FIX)
+df <- expand.grid(x = density_data$x, y = density_data$y)
+df$z <- as.vector(density_data$z)
+
+# Create heatmap
+ggplot(df, aes(x = x, y = y, fill = z)) +
+  geom_raster() +
+  scale_fill_gradient(low = "white", high = "red") +
+  labs(title = "Heatmap of Two-Dimensional Data",
+       x = "Variable X",
+       y = "Variable Y")
+
+# 4. Contour Plot (for visualizing density contours)
+ggplot(df, aes(x = x, y = y)) +
+  geom_contour(aes(z = z)) +
+  labs(title = "Contour Plot of Two-Dimensional Data",
+       x = "Variable X",
+       y = "Variable Y")
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL NO 7 : Scatter plot between two variables
+
+# Load necessary library
+library(ggplot2)
+
+# Sample data (replace with your actual data)
+data <- data.frame(
+  x = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+  y = c(2, 4, 3, 6, 1, 8, 7, 9, 5, 10)
+)
+
+# Create scatter plot using ggplot2
+ggplot(data, aes(x = x, y = y)) +
+  geom_point() +
+  labs(
+    title = "Scatter Plot of Two Variables",
+    x = "Variable X",
+    y = "Variable Y"
+  )
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL NO 8 : Five number summary in exploratory data analysis
+
+library(dplyr)
+
+# Sample data
+data <- c(10, 12, 15, 8, 20, 18, 11, 14, 16, 9)
+
+# Convert numeric vector into a tibble
+data <- tibble(values = data)
+
+# Calculate five-number summary
+five_number_summary <- data %>%
+  summarize(
+    Minimum = min(values),
+    Q1 = quantile(values, 0.25),
+    Median = median(values),
+    Q3 = quantile(values, 0.75),
+    Maximum = max(values)
+  )
+
+print(five_number_summary)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL NO 9 : Multiple histogram and multiple boxplots, Multiple scatter plots and colouring the graph
+
+library(dplyr)
+
+# Sample data
+data <- c(10, 12, 15, 8, 20, 18, 11, 14, 16, 9)
+
+# Convert numeric vector into a tibble
+data <- tibble(values = data)
+
+# Calculate five-number summary
+five_number_summary <- data %>%
+  summarize(
+    Minimum = min(values),
+    Q1 = quantile(values, 0.25),
+    Median = median(values),
+    Q3 = quantile(values, 0.75),
+    Maximum = max(values)
+  )
+
+print(five_number_summary)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL NO 10 : Lattice system in R environment and Graphical window in R and its uses
+
+# Load the lattice library
+library(lattice)
+
+# Sample data
+data <- data.frame(
+  group = factor(rep(c("A", "B", "C"), each = 10)),
+  x = rnorm(30, mean = c(10, 20, 30), sd = 5)
+)
+
+# Create a lattice histogram
+histogram(~ x | group, data = data,
+          xlab = "Value", ylab = "Frequency",
+          main = "Histograms by Group")
+
+# Create a lattice boxplot
+bwplot(~ x | group, data = data,
+       xlab = "Group", ylab = "Value",
+       main = "Boxplots by Group")
+
+# Create lattice scatter plot (with a dummy y variable for demonstration)
+xyplot(rnorm(30) ~ x | group, data = data,
+       xlab = "Variable X", ylab = "Variable Y",
+       main = "Scatter Plots by Group")
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
