@@ -1,0 +1,416 @@
+1) Starting Raspbian OS, Raspberry Pi components & connectivity
+
+2) Displaying different LED patterns using Raspberry Pi
+
+3) Displaying Time on 4-Digit 7-Segment Display using Raspberry Pi
+
+4) Raspberry Pi Based Oscilloscope
+
+5) Controlling Raspberry Pi with Telegram Bot
+
+6) Fingerprint Sensor Interfacing with Raspberry Pi
+
+7) Raspberry Pi GPS Module Interfacing
+
+8) IoT-based Web Controlled Home Automation using Raspberry Pi
+
+9) Interfacing Raspberry Pi with RFID
+
+=============================================================================================================================================
+
+PRACTICAL 2
+
+
+void setup()
+{
+  pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(11, OUTPUT);
+}
+
+void loop()
+{
+  digitalWrite(13, HIGH);
+  delay(1000); // Wait for 1000 millisecond(s)
+  digitalWrite(13, LOW);
+  delay(1000); // Wait for 1000 millisecond(s)
+  digitalWrite(12, HIGH);
+  delay(1000); // Wait for 1000 millisecond(s)
+  digitalWrite(12, LOW);
+  delay(1000); // Wait for 1000 millisecond(s)
+  digitalWrite(11, HIGH);
+  delay(1000); // Wait for 1000 millisecond(s)
+  digitalWrite(11 , LOW);
+  delay(1000); // Wait for 1000 millisecond(s)
+}
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL 3
+
+
+const byte SEGMENT_PINS[8] = {9, 8, 7, 6, 2, 3, 4, 5};
+const byte POWER_PINS[4] = {10, 11, 12, 13};
+const byte SEGMENT_LENGTH = sizeof(SEGMENT_PINS) / sizeof(byte);
+const byte POWER_LENGTH = sizeof(POWER_PINS) / sizeof(byte);
+const unsigned int SEGMENTS[8] = {
+  // middle
+  1 << 0,
+  // top left
+  1 << 1,
+  // top
+  1 << 2,
+  // top right
+  1 << 3,
+  // dot
+  1 << 4,
+  // bottom right
+  1 << 5,
+  // bottom
+  1 << 6,
+  // bottom left
+  1 << 7
+};
+const unsigned int DIGITS[10] = {
+  // 0
+  (SEGMENTS[1] | SEGMENTS[2] | SEGMENTS[3] | SEGMENTS[5] | SEGMENTS[6] | SEGMENTS[7]),
+  // 1
+  (SEGMENTS[3] | SEGMENTS[5]),
+  // 2
+  (SEGMENTS[0] | SEGMENTS[2] | SEGMENTS[3] | SEGMENTS[6] | SEGMENTS[7]),
+  // 3
+  (SEGMENTS[0] | SEGMENTS[2] | SEGMENTS[3] | SEGMENTS[5] | SEGMENTS[6]),
+  // 4
+  (SEGMENTS[0] | SEGMENTS[1] | SEGMENTS[3] | SEGMENTS[5]),
+  // 5
+  (SEGMENTS[0] | SEGMENTS[1] | SEGMENTS[2] | SEGMENTS[5] | SEGMENTS[6]),
+  // 6
+  (SEGMENTS[0] | SEGMENTS[1] | SEGMENTS[2] | SEGMENTS[5] | SEGMENTS[6] | SEGMENTS[7]),
+  // 7
+  (SEGMENTS[2] | SEGMENTS[3] | SEGMENTS[5]),
+  // 8
+  (SEGMENTS[0] | SEGMENTS[1] | SEGMENTS[2] | SEGMENTS[3] | SEGMENTS[5] | SEGMENTS[6] | SEGMENTS[7]),
+  // 9
+  (SEGMENTS[0] | SEGMENTS[1] | SEGMENTS[2] | SEGMENTS[3] | SEGMENTS[5] | SEGMENTS[6])
+};
+unsigned int x = 0;
+
+void setup(){
+  byte length;
+  for (byte i = 0; i < POWER_LENGTH; i++) {
+    pinMode(POWER_PINS[i], OUTPUT);
+    digitalWrite(POWER_PINS[i], LOW);
+  }
+  for (byte i = 0; i < SEGMENT_LENGTH; i++) {
+    pinMode(SEGMENT_PINS[i], OUTPUT);
+    digitalWrite(SEGMENT_PINS[i], HIGH);
+  }
+}
+ 
+void loop(){
+  x %= 10000;
+  // loop 4 digits for assigning the dot
+  for (byte k = 0; k < POWER_LENGTH; k++) {
+    for (byte j = 0; j < (100 / POWER_LENGTH); j++) {
+      // loop 4 digits
+      unsigned int y = 1;
+      for (byte i = 0; i < POWER_LENGTH; i++) {
+        y *= 10;
+        // set segments to the digit
+        // assign the dot to the digit each 250ms
+        setLED(POWER_PINS[i], DIGITS[(x / (y / 10)) % 10] | ((k == i) ? SEGMENTS[4] : 0));
+      }
+      // total delay 8ms 4 digits
+      // delay extra 2ms to be 10ms in a period
+      delay(2);
+    }
+  }
+  x++;
+}
+ 
+void setLED(byte powerPin, unsigned int segmentValue, bool enabled) {
+  digitalWrite(powerPin, enabled ? HIGH : LOW);
+  for (byte i = 0; i < SEGMENT_LENGTH; i++) {
+    if ((segmentValue & SEGMENTS[i]) > 0) {
+      digitalWrite(SEGMENT_PINS[i], enabled ? LOW : HIGH);
+    }
+  }
+  delay(1);
+}
+ 
+void setLED(byte powerPin, unsigned int segmentValue){
+  setLED(powerPin, segmentValue, true);
+  setLED(powerPin, segmentValue, false);
+}
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PRACTICAL 4
+
+
+void setup() {
+  Serial.begin(9600);   //Starts serial communication at 9600 baud, so the Arduino    can send data to your computer (Serial Monitor).
+}
+void loop() {
+  int value = analogRead(A0); //Reads the voltage on analog pin A0
+  Serial.println(value);  //Sends the reading to the Serial Monitor so you can see the value  
+  delay(10);        //Waits 10 milliseconds, so you get about 100 readings per second.       
+}
+
+===========================================================================================================================================================
+
+
+PRACTICAL 5
+
+
+int ledPin = 13;
+String inputString = "";
+
+void setup() {
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+  Serial.println("Type LED ON or LED OFF (simulating WhatsApp message)");
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    inputString = Serial.readStringUntil('\n');
+    inputString.trim();
+
+    if (inputString == "LED ON") {
+      digitalWrite(ledPin, HIGH);
+      Serial.println("LED is ON (Message received)");
+    } 
+    else if (inputString == "LED OFF") {
+      digitalWrite(ledPin, LOW);
+      Serial.println("LED is OFF (Message received)");
+    } 
+    else {
+      Serial.println("Unknown command");
+    }
+  }
+}
+
+
+=====================================================================================================================================================
+
+PRACTICAL 6
+
+
+#include <LiquidCrystal_I2C.h> 
+int ledPin =13; 
+String inputString = ""; 
+String validFingerprint = "4444"; 
+LiquidCrystal_I2C lcd(0x27,16,2); 
+void setup(){
+  lcd.init(); 
+  lcd.backlight();
+  pinMode(ledPin, OUTPUT); 
+  Serial.begin(9600); 
+  Serial.println("Place Finger (enter Fingerprint ID):"); 
+} 
+void loop(){
+  if (Serial.available() > 0){ 
+    inputString = Serial.readStringUntil('\n'); 
+    inputString.trim(); 
+    if (inputString == validFingerprint){ 
+      digitalWrite(ledPin, HIGH);  
+      Serial.println("Access Granted, Fingerprint Matched"); 
+      lcd.print("Access Granted");
+    } else { 
+      digitalWrite(ledPin, LOW);  
+      Serial.println("Access Denied, Invalid Fingerprint"); 
+      lcd.print("Access Denied"); 
+    } 
+  } 
+} 
+
+
+=========================================================================================================================================================
+
+PRACTICAL 7
+
+
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h> 
+LiquidCrystal_I2C lcd(0x27, 16, 2); 
+char text2[] = "$GPGGA,134658.00,5106.9792,N,11402.3003,W,2,09,1.0,1048.47,M,-16.27,M,08,AAAA*60" ; 
+void setup(){
+  lcd.init(); 
+  lcd.backlight(); 
+} 
+void loop(){
+  char buffer[100]; 
+  strcpy(buffer, text2); 
+  
+  char *token = strtok(buffer, ",");
+  int field = 0; 
+  String lat, latDir, lon, lonDir;
+  while (token != NULL){
+    field++; 
+    if (field == 3) lat = token;  
+    if (field == 4) latDir = token;   
+    if (field == 5) lon = token;  
+    if (field == 6) lonDir = token;   
+    token = strtok(NULL, ",");
+  }
+  lcd.clear(); 
+  lcd.setCursor(0, 0); 
+  lcd.print("Lat: " + lat + " " + latDir);  
+  lcd.setCursor(0, 1); 
+  lcd.print("Lon: " + lon + " " + lonDir); 
+  delay(3000);
+} 
+
+
+============================================================================================================================================
+
+PRACTICAL 8
+
+
+#include <Keypad.h> 
+#include <LiquidCrystal_I2C.h> 
+#include <Servo.h> 
+#define PASSWORD_LENGTH 5 
+LiquidCrystal_I2C lcd(0x27, 16, 2); 
+Servo servo; 
+const byte ROWS = 4, COLS = 4; 
+char keys[ROWS][COLS] = { 
+  {'1','2','3','A'}, 
+  {'4','5','6','B'}, 
+  {'7','8','9','C'}, 
+  {'*','0','#','D'}
+}; 
+byte rowPins[ROWS] = {0, 1, 2, 3}; 
+byte colPins[COLS] = {4, 5, 6, 7}; 
+Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS); 
+const char correctPassword[PASSWORD_LENGTH] = "1111"; 
+char inputPassword[PASSWORD_LENGTH]; 
+byte index = 0; 
+bool doorOpen = false; 
+int buzzer = 8; 
+void setup(){
+  lcd.init(); 
+  lcd.backlight(); 
+  servo.attach(9); 
+  pinMode(buzzer, OUTPUT); 
+  lcd.setCursor(0, 0); 
+  lcd.print("Protected Door"); 
+  delay(2000); 
+  lcd.clear(); 
+  lockDoor(); 
+} 
+void loop(){
+  if (!doorOpen){
+    lcd.setCursor(0, 0); 
+    lcd.print("Enter Password:"); 
+    char key = keypad.getKey(); 
+    if (key && index < PASSWORD_LENGTH - 1){ 
+      inputPassword[index++] = key; 
+      lcd.setCursor(index - 1, 1); 
+      lcd.print("*"); 
+    } 
+    if (index == PASSWORD_LENGTH - 1){
+      inputPassword[index] = '\0'; 
+      checkPassword(); 
+    } 
+  } else { 
+    lcd.setCursor(0, 0); 
+    lcd.print("Press # to Lock");
+    if (keypad.getKey() == '#'){
+      lockDoor(); 
+    } 
+  } 
+} 
+void checkPassword(){
+  lcd.clear(); 
+  if (strcmp(inputPassword, correctPassword) == 0){
+    lcd.print("Access Granted"); 
+    openDoor(); 
+    tone(buzzer, 1000, 1000); 
+    delay(3000); 
+    doorOpen = true; 
+  } else { 
+    lcd.print("Access Denied"); 
+    tone(buzzer, 1500, 1000); 
+    delay(2000); 
+  } 
+  clearInput(); 
+  lcd.clear(); 
+} 
+void clearInput() { 
+  index = 0; 
+  memset(inputPassword, 0, PASSWORD_LENGTH);
+} 
+void openDoor() { 
+  for (int pos = 0; pos <= 90; pos += 10) { 
+    servo.write(pos); 
+    delay(15); 
+  } 
+} 
+void lockDoor() { 
+  for (int pos = 90; pos >= 0; pos -= 10) { 
+    servo.write(pos); 
+    delay(15); 
+  } 
+  lcd.clear(); 
+  lcd.print("Door Locked"); 
+  delay(2000); 
+  lcd.clear();
+  doorOpen=false; 
+}
+
+
+======================================================================================================================================
+
+PRACTICAL 9
+
+
+int ledpin=13; 
+String input= ""; 
+String validUID="4444"; 
+void setup(){
+  pinMode(ledpin,OUTPUT); 
+  Serial.begin(9600); 
+  Serial.println("Enter the UID (Scanning RFID Card):"); 
+}
+void loop(){ 
+  if (Serial.available()>0){ 
+  input=Serial.readStringUntil('\n'); 
+  input.trim(); 
+    
+    if (input==validUID){ 
+    digitalWrite(ledpin,HIGH); 
+    Serial.println("Access Granted"); 
+    } 
+    else{ 
+      digitalWrite(ledpin,LOW); 
+      Serial.println("Access Denied"); 
+    } 
+  } 
+} 
+
+0 
+Starting Raspbian OS, Familiarising with Raspberry Pi Components and interface, 
+Connecting to ethernet, Monitor, USB. 
+1 
+Displaying different LED patterns with Raspberry Pi. 
+2 
+Displaying Time over 4-Digit 7-Segment Display using Raspberry Pi 
+3 
+Raspberry Pi Based Oscilloscope 
+4 
+Controlling Raspberry Pi with telegram bot. 
+5 
+Fingerprint Sensor interfacing with Raspberry Pi 
+6 
+Raspberry Pi GPS Module Interfacing 
+7 
+IoT based Web Controlled Home Automation using Raspberry Pi 
+8 
+Visitor Monitoring with Raspberry Pi and Pi Camera 
+9 
+Interfacing Raspberry Pi with RFID. 
+10 
+Installing Windows 10 IoT Core on Raspberry Pi
